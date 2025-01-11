@@ -1,6 +1,16 @@
 <script>
 	import Header from './Header.svelte';
 	import '../app.css';
+	import { onMount } from 'svelte';
+	import { auth } from '$lib/firebase';
+	import { user } from '$lib/stores/auth';
+	import { onAuthStateChanged } from 'firebase/auth';
+
+	onMount(() => {
+		onAuthStateChanged(auth, (userData) => {
+			user.set(userData);
+		});
+	});
 </script>
 
 <div class="app">

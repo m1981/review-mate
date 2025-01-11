@@ -1,7 +1,24 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import { auth } from '$lib/firebase';
+	import { user } from '$lib/stores/auth';
+	import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+
+	async function signInWithGoogle() {
+		const provider = new GoogleAuthProvider();
+		try {
+			await signInWithPopup(auth, provider);
+		} catch (error) {
+			console.error('Error signing in with Google:', error);
+		}
+	}
+
+	async function handleSignOut() {
+		try {
+			await signOut(auth);
+		} catch (error) {
+			console.error('Error signing out:', error);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -10,22 +27,21 @@
 </svelte:head>
 
 <section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
+	{#if $user}
+		<div class="profile">
+			<img src={$user.photoURL} alt="Profile" class="avatar" />
+			<h2>Welcome, {$user.displayName}!</h2>
+			<p>Email: {$user.email}</p>
+			<button on:click={handleSignOut}>Sign Out</button>
+		</div>
+	{:else}
+		<div class="auth-container">
+			<h2>Welcome to the App</h2>
+			<button on:click={signInWithGoogle} class="google-btn">
+				Sign in with Google
+			</button>
+		</div>
+	{/if}
 </section>
 
 <style>
@@ -37,23 +53,47 @@
 		flex: 0.6;
 	}
 
-	h1 {
-		width: 100%;
+	.profile {
+		text-align: center;
+		padding: 2rem;
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+	.avatar {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		margin-bottom: 1rem;
 	}
 
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	.auth-container {
+		text-align: center;
+		padding: 2rem;
+	}
+
+	button {
+		background-color: var(--color-theme-1);
+		color: white;
+		border: none;
+		padding: 0.8rem 1.5rem;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 1rem;
+		margin-top: 1rem;
+		transition: background-color 0.2s;
+	}
+
+	button:hover {
+		background-color: #ff4f1a;
+	}
+
+	.google-btn {
+		background-color: #4285f4;
+	}
+
+	.google-btn:hover {
+		background-color: #357ae8;
 	}
 </style>
