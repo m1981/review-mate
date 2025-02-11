@@ -1,0 +1,19 @@
+{
+  "services": {
+    "development": {
+      "commands": {
+          "Decrypt Vars ": "export SOPS_AGE_KEY_FILE=~/.sops/keys.txt && sops -d secrets/development.yaml > secrets/development.local.yaml ",
+          "Run Dev Server": "docker compose down && docker compose up",
+          "precommit": "echo run precommit",
+          "tests-ut": "echo run tests_ut"
+      }
+    },
+    "node_modules": {
+      "commands": {
+        "Check outdated": "docker compose exec web npm outdated",
+        "Audit Fix": "docker compose exec web npm audit fix",
+        "Audit Fix Force": "docker compose exec web npm audit fix --force"
+      }
+    }
+  }
+}
