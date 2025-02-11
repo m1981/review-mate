@@ -1,5 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { loadConfig } from './utils/config';
+
+// Load configuration before anything else
+if (process.env.NODE_ENV === 'development') {
+  loadConfig();
+}
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
