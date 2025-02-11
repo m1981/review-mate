@@ -1,0 +1,21 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: svelte-dev
+    ports:
+      - "5173:5173"  # Default Vite port
+    volumes:
+      - .:/app
+      - /app/node_modules  # This prevents local node_modules from mounting
+    environment:
+      - NODE_ENV=development
+      # Add these environment variables for Vite
+      - HOST=0.0.0.0
+      - VITE_ALLOW_ORIGIN=true
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0  # Explicitly set host to 0.0.0.0
+    stdin_open: true  # Docker equivalent of -i
+    tty: true
+

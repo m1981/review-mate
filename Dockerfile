@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:20.9.0
 
 # Set the working directory
 WORKDIR /app
@@ -11,6 +11,3 @@ RUN npm install
 
 # Copy the rest of your app
 COPY . .
-
-# Specify the command to run your app
-CMD ["npm", "start"]
