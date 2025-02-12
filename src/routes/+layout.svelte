@@ -1,16 +1,20 @@
-<script>
-	import Header from './Header.svelte';
-	import '../app.css';
-	import { onMount } from 'svelte';
-	import { auth } from '$lib/firebase';
-	import { user } from '$lib/stores/auth';
-	import { onAuthStateChanged } from 'firebase/auth';
+<script lang="ts">
+    import Header from './Header.svelte';
+    import '../app.css';
+    import { onMount } from 'svelte';
+    import { getFirebaseAuth } from '$lib/firebase';
+    import { user } from '$lib/stores/auth';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { browser } from '$app/environment';
 
-	onMount(() => {
-		onAuthStateChanged(auth, (userData) => {
-			user.set(userData);
-		});
-	});
+    onMount(() => {
+        if (browser) {
+            const auth = getFirebaseAuth();
+            return onAuthStateChanged(auth, (userData) => {
+                user.set(userData);
+            });
+        }
+    });
 </script>
 
 <div class="app">

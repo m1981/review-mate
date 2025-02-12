@@ -1,24 +1,31 @@
-<script>
-	import { auth } from '$lib/firebase';
-	import { user } from '$lib/stores/auth';
-	import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+<script lang="ts">
+    import { getFirebaseAuth } from '$lib/firebase';
+    import { user } from '$lib/stores/auth';
+    import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+    import { browser } from '$app/environment';
 
-	async function signInWithGoogle() {
-		const provider = new GoogleAuthProvider();
-		try {
-			await signInWithPopup(auth, provider);
-		} catch (error) {
-			console.error('Error signing in with Google:', error);
-		}
-	}
+    async function signInWithGoogle() {
+        if (!browser) return;
 
-	async function handleSignOut() {
-		try {
-			await signOut(auth);
-		} catch (error) {
-			console.error('Error signing out:', error);
-		}
-	}
+        const auth = getFirebaseAuth();
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error('Error signing in with Google:', error);
+        }
+    }
+
+    async function handleSignOut() {
+        if (!browser) return;
+
+        const auth = getFirebaseAuth();
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    }
 </script>
 
 <svelte:head>
