@@ -1,38 +1,125 @@
-# create-svelte
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
+1. **For Team Members (Key Generation)**
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
+# Each team member generates their own key pair
+age-keygen -o ~/.age/key.txt
 
-# create a new project in my-app
-npm create svelte@latest my-app
+# Extract public key for sharing
+age-keygen -y ~/.age/key.txt > my_public_key.txt
+# or
+cat ~/.age/key.txt | grep "public key:"
 ```
 
-## Developing
+2. **Centralized Key Management**
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+Option A: Using a secure password manager (Recommended):
+```plaintext
+1. Create a secure shared vault in 1Password/LastPass/BitWarden
+2. Store all team members' public keys
+3. Store production private keys (if applicable)
+4. Use strict access controls
 ```
 
-## Building
-
-To create a production version of your app:
-
+Option B: Using Git (for public keys only):
 ```bash
-npm run build
+# Create a dedicated repository or directory
+mkdir -p team-keys/public-keys
+
+# Structure
+team-keys/
+├── README.md
+└── public-keys/
+    ├── alice.txt
+    ├── bob.txt
+    └── carol.txt
 ```
 
-You can preview the production build with `npm run preview`.
+3. **Update SOPS Configuration**
+```yaml
+# .sops.yaml
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    age:
+      # Development Team
+      - age1rl24j... # Alice (Dev)
+      - age1pr93m... # Bob (Dev)
+      - age1xy72k... # Carol (DevOps)
+      
+      # CI/CD
+      - age1ci82j... # GitHub Actions
+      
+      # Production
+      - age1prod2... # Production Key
+```
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+4. **Environment-Specific Keys**
+```yaml
+# .sops.yaml
+creation_rules:
+  - path_regex: secrets/prod/.*\.yaml$
+    age:
+      - age1prod2... # Production only
+      - age1devop... # DevOps team only
+
+  - path_regex: secrets/dev/.*\.yaml$
+    age:
+      - age1rl24j... # All developers
+      - age1pr93m...
+      - age1xy72k...
+```
+
+5. **Onboarding Documentation** (save as `KEYS.md`):
+```markdown
+# Key Management
+
+## New Team Members
+1. Generate your key pair:
+   ```bash
+   age-keygen -o ~/.age/key.txt
+   ```
+2. Extract your public key:
+   ```bash
+   age-keygen -y ~/.age/key.txt
+   ```
+3. Share your public key with DevOps team via [Secure Password Manager]
+4. Wait for confirmation that you've been added to .sops.yaml
+
+## Local Setup
+1. Store your private key:
+   ```bash
+   export SOPS_AGE_KEY_FILE=~/.age/key.txt
+   ```
+2. Test access:
+   ```bash
+   sops -d secrets/dev/test.yaml
+   ```
+```
+
+6. **Security Best Practices**
+```plaintext
+- Never share private keys
+- Rotate keys periodically
+- Use different keys for different environments
+- Maintain an access audit log
+- Remove keys when team members leave
+- Use least-privilege access model
+```
+
+7. **Emergency Access Protocol** (save as `EMERGENCY.md`):
+```markdown
+## Emergency Access Protocol
+
+1. Production Keys Location:
+   - Primary: Secured in [Password Manager]
+   - Backup: With [Security Team Lead]
+
+2. Emergency Contacts:
+   - Primary: [DevOps Lead]
+   - Secondary: [Security Lead]
+
+3. Recovery Procedure:
+   1. Contact emergency key holders
+   2. Verify identity through established channels
+   3. Follow key rotation procedure
+```
+
