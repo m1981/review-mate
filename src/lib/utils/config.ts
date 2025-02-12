@@ -9,10 +9,6 @@ interface FirebaseConfig {
 }
 
 export const getFirebaseConfig = (): FirebaseConfig => {
-    if (import.meta.env.DEV) {
-        console.log('Available environment variables:', import.meta.env);
-    }
-
     // Validate required environment variables
     const requiredVars = [
         'VITE_FIREBASE_APIKEY',
