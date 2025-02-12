@@ -10,6 +10,9 @@
           },
           "Rotate AGE keys": "sops updatekeys secrets/development.yaml",
           "Run Dev Server": "docker compose down && docker compose up",
+          "Run Tests": "docker compose run test npm run test",
+          "Run Tests Watch": "docker compose run test npm run test:watch",
+          "Run Tests Coverage": "docker compose run test npm run test:coverage",
           "precommit": "echo run precommit",
           "tests-ut": "echo run tests_ut"
       }

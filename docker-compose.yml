@@ -11,11 +11,24 @@ services:
       - /app/node_modules  # This prevents local node_modules from mounting
     environment:
       - NODE_ENV=development
-      # Add these environment variables for Vite
       - HOST=0.0.0.0
       - VITE_ALLOW_ORIGIN=true
+      - VITEST=true  # Add this for Vitest
     working_dir: /app
-    command: npm run dev -- --host 0.0.0.0  # Explicitly set host to 0.0.0.0
-    stdin_open: true  # Docker equivalent of -i
+    command: npm run dev -- --host 0.0.0.0
+    stdin_open: true
     tty: true
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: svelte-test
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=test
+      - VITEST=true
+    working_dir: /app
+    command: npm run test:watch
