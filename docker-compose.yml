@@ -5,30 +5,38 @@ services:
       dockerfile: Dockerfile
     container_name: svelte-dev
     ports:
-      - "5173:5173"  # Default Vite port
+      - "5173:5173"
     volumes:
       - .:/app
-      - /app/node_modules  # This prevents local node_modules from mounting
+      - node_modules:/app/node_modules
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - VITE_ALLOW_ORIGIN=true
-      - VITEST=true  # Add this for Vitest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     working_dir: /app
     command: npm run dev -- --host 0.0.0.0
     stdin_open: true
     tty: true
 
   test:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    extends: web
     container_name: svelte-test
-    volumes:
-      - .:/app
-      - /app/node_modules
+    ports: []
     environment:
       - NODE_ENV=test
       - VITEST=true
     working_dir: /app
     command: npm run test:watch
+
+volumes:
+  node_modules:
+    name: svelte-node-modules
