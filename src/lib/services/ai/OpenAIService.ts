@@ -6,8 +6,8 @@ import type {
     Provider,
     Message,
     Role
-} from '$lib/types';
-import { AIServiceError } from './errors';
+} from '';
+import { AIServiceError } from '$lib/types';
 import { BaseAIModelService } from './BaseAIModelService';
 interface OpenAIConfig {
     apiKey: string;

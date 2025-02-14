@@ -2,8 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OpenAIService } from '../OpenAIService';
 import { Configuration, OpenAIApi } from 'openai';
-import { AIServiceError } from '../errors';
-
+import { AIServiceError } from '$lib/types';
 // Mock OpenAI
 vi.mock('openai', () => {
     const Configuration = vi.fn();
@@ -132,14 +131,50 @@ describe('OpenAIService', () => {
 
     describe('validateConfig', () => {
         it('should validate correct config', async () => {
-            await expect(openAIService['validateConfig'](defaultConfig))
-                .resolves.not.toThrow();
+        await expect(openAIService.validateConfig(defaultConfig))
+            .resolves.toBeUndefined();
+    });
+
+    it('should throw for invalid temperature', async () => {
+        const invalidConfig = {
+            ...defaultConfig,
+            temperature: 2.0
+        };
+        await expect(openAIService.validateConfig(invalidConfig))
+            .rejects.toThrow('Temperature must be between 0 and 1');
+    });
+
+    it('should throw for invalid topP', async () => {
+        const invalidConfig = {
+            ...defaultConfig,
+            topP: 1.1
+        };
+        await expect(openAIService.validateConfig(invalidConfig))
+            .rejects.toThrow('TopP must be between 0 and 1');
+    });
+
+    it('should throw for invalid maxTokens', async () => {
+        const invalidConfig = {
+            ...defaultConfig,
+            maxTokens: -1
+        };
+        await expect(openAIService.validateConfig(invalidConfig))
+            .rejects.toThrow('MaxTokens must be positive');
+    });
+
+    it('should throw for invalid model name', async () => {
+        const invalidConfig = {
+            ...defaultConfig,
+            modelName: ''
+        };
+        await expect(openAIService.validateConfig(invalidConfig))
+            .rejects.toThrow('Model name must be specified');
         });
 
-        it('should reject invalid model', async () => {
+    it('should throw for invalid presence penalty', async () => {
             const invalidConfig = {
                 ...defaultConfig,
-                modelName: 'invalid-model'
+            presencePenalty: 3
             };
 
             await expect(openAIService['validateConfig'](invalidConfig))
