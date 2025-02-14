@@ -20,7 +20,7 @@ export abstract class BaseAIModelService implements IAIModelService {
         }
     }
 
-    validateConfig(config: AIModelConfig): void {
+    protected async validateConfig(config: AIModelConfig): Promise<void> {
         if (config.temperature < 0 || config.temperature > 1) {
             throw new Error('Temperature must be between 0 and 1');
         }
